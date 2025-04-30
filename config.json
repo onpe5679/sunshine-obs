@@ -1,0 +1,10 @@
+{
+    "obs": {
+        "host": "192.168.0.152",
+        "port": 4455,
+        "password": "qtqEatPBCM3xaC8m"
+    },
+    "sunshine": {
+        "log_path": "C:/Program Files/Apollo/config/sunshine.log"
+    }
+} 
