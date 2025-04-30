@@ -26,7 +26,7 @@ Sunshine 서버에 Moonlight 클라이언트가 연결될 때 자동으로 OBS �
 ```json
 {
   "obs": {
-    "host": "localhost", // OBS WebSocket 서버 주소 (일반적으로 localhost)
+    "host": "localhost", // OBS WebSocket 서버 주소 (호스트컴퓨터의 로컬 ip 주소. 같은 컴퓨터에서 실행되는 경우 localhost)
     "port": 4455,        // OBS WebSocket 서버 포트 (OBS 설정 확인)
     "password": "YOUR_OBS_PASSWORD" // OBS WebSocket 비밀번호 (설정 안했으면 빈 문자열 "")
   },
@@ -54,7 +54,7 @@ Sunshine 서버에 Moonlight 클라이언트가 연결될 때 자동으로 OBS �
    ```bash
    pip install -r requirements.txt
    ```
-3. `sunshine_obs_controller.py` 스크립트와 **같은 경로**에 `config.json` 파일을配置합니다.
+3. `sunshine_obs_controller.py` 스크립트와 **같은 경로**에 `config.json` 파일이 있어야합니다.
 4. 스크립트를 실행합니다:
    ```bash
    python sunshine_obs_controller.py
@@ -65,4 +65,4 @@ Sunshine 서버에 Moonlight 클라이언트가 연결될 때 자동으로 OBS �
 - OBS Studio가 실행 중이고 WebSocket 서버가 활성화되어 있어야 합니다.
 - Sunshine 서버가 정상적으로 실행 중이어야 합니다.
 - `config.json` 파일의 경로 설정 (특히 Sunshine 로그 경로)이 정확해야 합니다.
-- 프로그램 시작 시 간혹 녹화 시작/중지 실패 메시지가 여러 번 나타날 수 있습니다. 이는 초기 연결 과정의 문제로 보이며, 이후 정상 작동한다면 무시하셔도 됩니다. (개선 예정)
+- 프로그램 시작 시 녹화 시작/중지 실패 메시지가 여러 번 나타날겁니다. 이는 초기 연결 과정의 문제로 보이며, 이후 정상 작동한다면 무시하셔도 됩니다. (개선하고싶은데 어떻게 수정해야 할 지 모르곘음)
