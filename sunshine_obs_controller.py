@@ -3,6 +3,7 @@ import time
 import json
 import asyncio
 import websockets
+from datetime import datetime
 from simpleobsws import WebSocketClient, Request, IdentificationParameters
 
 def load_config():
@@ -49,11 +50,14 @@ class LogMonitor:
                         self.last_position = f.tell()
 
                         for line in new_lines:
+                            current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
                             if "CLIENT CONNECTED" in line and not self.connected:
                                 self.connected = True
+                                print(f"[{current_time}] Moonlight 클라이언트 연결됨. OBS 녹화를 시작합니다.")
                                 await self.websocket_server.start_recording()
                             elif "CLIENT DISCONNECTED" in line and self.connected:
                                 self.connected = False
+                                print(f"[{current_time}] Moonlight 클라이언트 연결 해제됨. OBS 녹화를 중지합니다.")
                                 await self.websocket_server.stop_recording()
             except Exception as e:
                 print(f"로그 파일 읽기 오류: {e}")
