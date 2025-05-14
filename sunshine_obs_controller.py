@@ -5,6 +5,7 @@ import asyncio
 import websockets
 from datetime import datetime
 from simpleobsws import WebSocketClient, Request, IdentificationParameters
+import threading
 
 def load_config():
     try:
@@ -122,6 +123,17 @@ class OBSController:
             except Exception as e:
                 print(f"OBS 녹화 중지 실패: {e}")
 
+    async def save_replay_buffer(self):
+        if self.ws:
+            try:
+                response = await self.ws.call(Request("SaveReplayBuffer"))
+                if getattr(response, 'error', None) is None:
+                    print("OBS 리플레이 버퍼 저장 성공")
+                else:
+                    print(f"OBS 리플레이 버퍼 저장 오류: {response.error}")
+            except Exception as e:
+                print(f"OBS 리플레이 버퍼 저장 실패: {e}")
+
     async def _on_event(self, payload):
         """OBS WebSocket으로부터 수신된 이벤트를 출력합니다."""
         print(f"OBS 이벤트 수신: {payload}")
@@ -133,6 +145,10 @@ class WebSocketServer:
 
     async def start(self):
         await self.obs_controller.connect()
+        # 자동 녹화 시작
+        current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        print(f"[{current_time}] 프로그램 시작 시 자동 녹화를 시작합니다.")
+        await self.start_recording()
         server = await websockets.serve(self.handle_client, "localhost", 8765)
         print("WebSocket 서버가 시작되었습니다.")
         await server.wait_closed()
@@ -164,10 +180,28 @@ class WebSocketServer:
             except Exception as e:
                 print(f"클라이언트에 메시지 전송 실패: {e}")
 
+def start_console_listener(ws_server, loop):
+    def listener():
+        while True:
+            cmd = input().strip().lower()
+            if cmd == 'r':
+                current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                print(f"[{current_time}] 리플레이 버퍼 저장 요청")
+                asyncio.run_coroutine_threadsafe(ws_server.obs_controller.save_replay_buffer(), loop)
+            elif cmd == 's':
+                current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                print(f"[{current_time}] 녹화 중지 요청")
+                asyncio.run_coroutine_threadsafe(ws_server.obs_controller.stop_recording(), loop)
+    t = threading.Thread(target=listener, daemon=True)
+    t.start()
+
 async def main():
     websocket_server = WebSocketServer()
     log_monitor = LogMonitor(websocket_server)
     
+    # 콘솔 리스너 시작
+    loop = asyncio.get_running_loop()
+    start_console_listener(websocket_server, loop)
     try:
         # 로그 파일이 존재하는지 확인
         if not os.path.exists(SUNSHINE_LOG_PATH):
